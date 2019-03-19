@@ -1,0 +1,9 @@
+# ignore all
+*
+
+# unignore files
+!*.c
+!*.pdf
+
+# unignore directories
+!src/
