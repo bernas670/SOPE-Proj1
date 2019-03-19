@@ -2,6 +2,7 @@
 Forensic analysis utility for directories and files in Unix / Linux environment.
 
 ## Project Info
+* **Specification** : [Portuguese](specification.pdf)
 * **Date** : 2nd Year, 2nd Semester, 2018/2019
 * **Course** : [Sistemas Operativos (SOPE) | Operating Systems](https://sigarra.up.pt/feup/pt/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=419998)
 * **Contributors** : [Vítor Gonçalves](https://github.com/torrinheira), [António Dantas](https://github.com/antoniopedrodantas)
