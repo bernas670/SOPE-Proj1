@@ -4,7 +4,7 @@ Forensic analysis utility for directories and files in Unix / Linux environment.
 ## Project Info
 * **Specification** : [Portuguese](specification.pdf)
 * **Date** : 2nd Year, 2nd Semester, 2018/2019
-* **Course** : [Sistemas Operativos (SOPE) | Operating Systems](https://sigarra.up.pt/feup/pt/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=419998)
+* **Course** : [Sistemas Operativos](https://sigarra.up.pt/feup/pt/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=419998) | [Operating Systems](https://sigarra.up.pt/feup/en/UCURR_GERAL.FICHA_UC_VIEW?pv_ocorrencia_id=419998) (SOPE)
 * **Contributors** : [Vítor Gonçalves](https://github.com/torrinheira), [António Dantas](https://github.com/antoniopedrodantas)
 * **License** : [MIT](LICENSE)
 
