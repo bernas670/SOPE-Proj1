@@ -4,6 +4,7 @@
 # unignore files
 !*.c
 !*.pdf
+!Makefile
 
 # unignore directories
 !src/
