@@ -3,6 +3,7 @@
 
 # unignore files
 !*.c
+!*.h
 !*.pdf
 !Makefile
 

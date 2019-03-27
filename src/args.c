@@ -101,6 +101,9 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
         
         return 1;
     }
+    else {
+        
+    }
 
     while (optind <= argc) {
         printf("optind : %d, argc : %d \n", optind, argc);
