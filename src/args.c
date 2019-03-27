@@ -102,20 +102,8 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
         return 1;
     }
     else {
-        
+        data->target = strdup(argv[optind]);
     }
-
-    while (optind <= argc) {
-        printf("optind : %d, argc : %d \n", optind, argc);
-        printf("%s \n", argv[optind]);
-        if (data->target == 0) {
-            data->target = strdup(argv[optind]);
-        }
-        else
-            printf("invalid expression\n");
-    }
-
-    
 
     return 0;
 }
