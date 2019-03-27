@@ -50,8 +50,6 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
                 
                 char *ptr = strtok(optarg, ",");
                 for (size_t i = 0; ; i++) {
-                    if (i)
-                        ptr = strtok(NULL, ",");
 
                     if (ptr == NULL)
                         break;
@@ -66,6 +64,9 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
                         printf("'%s' is not a valid cryptographic hash\n", ptr);
                         return -1;
                     }
+
+                    printf("'%s' \n", ptr);
+                    ptr = strtok(NULL, ",");
                 }
 
                 break;
@@ -94,17 +95,19 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
 
 
     if (optind == argc) {
-        if (data->recursive_flag)
-            printf("missing target directory \n");
-        else
-            printf("missing target file \n");
-        
+        printf("missing target file/directory \n");    
         return 1;
     }
     else {
         data->target = strdup(argv[optind]);
+        optind++;
     }
 
-    return 0;
+    if (optind == argc)
+        return 0;
+    else {
+        printf("too many arguments were parsed \n");
+        return 1;
+    }
 }
 
