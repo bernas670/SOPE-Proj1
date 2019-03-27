@@ -11,7 +11,7 @@ Forensic analysis utility for directories and files in Unix / Linux environment.
 ### Use
 **`forensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>`**
 * `-r` : analyse all files in the specified directory and all subdirectories
-* `-h` : calculate one or more cryptographic hashof the analysed files (*if more than one argument is wanted separate them with commas*)
+* `-h` : calculate one or more cryptographic hash of the analysed files (*if more than one argument is wanted separate them with commas*)
 * `-o` : store the analysis data in a CSV file (*not in the standard output*)
 * `-v` : generate a log file
 
