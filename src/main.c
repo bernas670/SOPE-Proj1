@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "args.h"
+#include "file.h"
 
 
 int main(int argc, char* argv[], char* envp[]) {
@@ -23,6 +24,10 @@ int main(int argc, char* argv[], char* envp[]) {
 
     if (stat(get_target(data), &file_stat) == -1)       // use errno here (file doesnt exist)
         return 1;
+
+    char buf[10];
+    strmode(file_stat.st_mode, buf);
+    printf("permissions : %s\n", buf);
 
     printf("%s,%d \n\n", get_target(data), (int) file_stat.st_size);
 
