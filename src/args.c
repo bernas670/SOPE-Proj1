@@ -1,32 +1,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <stdlib.h>
 
-#include "forensic.h"
-
-
-forensic_data* init_forensic_data() {
-    forensic_data *ptr = malloc(sizeof(forensic_data));
-
-    if (ptr == NULL)
-        return NULL;
-
-    memset(ptr, 0, sizeof(forensic_data));
-
-    return ptr;
-}
-
-void free_forensic_data(forensic_data *data) {
-    free(data);
-}
-
+#include "args.h"
 
 extern char *optarg; // used when parsing options that take a name as a parameter, contains a pointer to that parameter
 extern int optind;   // current index into the main function's argument list
 
 
-int get_arguments(int argc, char* argv[], forensic_data *data) {
+int get_arguments(int argc, char* argv[], forensic *data) {
 
     char opt;
     /* get command line arguments */
@@ -34,19 +16,19 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
         switch (opt)
         {
             case 'r':
-                if (data->recursive_flag == true) {
+                if (get_recursive(data)) {
                     printf("-r is set multiple times\n");
                     return -1;
                 }                
-                data->recursive_flag = true;
+                set_recursive(data, true);
                 break;
 
             case 'h':
-                if (data->hash_flag) {
+                if (get_hash(data)) {
                     printf("-h is set multiple times\n");
                     return -1;
                 }
-                data->hash_flag = true;
+                set_hash(data, true);
                 
                 char *ptr = strtok(optarg, ",");
                 for (size_t i = 0; ; i++) {
@@ -55,37 +37,36 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
                         break;
 
                     if (strcmp(ptr, "md5") == 0)
-                        data->hash[0] = true;
+                        set_md5(data, true);
                     else if (strcmp(ptr, "sha1") == 0)
-                        data->hash[1] = true;
+                        set_sha1(data, true);
                     else if (strcmp(ptr, "sha256") == 0)
-                        data->hash[2] = true;
+                        set_sha256(data, true);
                     else {
                         printf("'%s' is not a valid cryptographic hash\n", ptr);
                         return -1;
                     }
 
-                    printf("'%s' \n", ptr);
                     ptr = strtok(NULL, ",");
                 }
 
                 break;
 
             case 'o':
-                if (data->output_flag) {
+                if (get_output(data)) {
                     printf("-o is set multiple times\n");
                     return -1;
                 }
-                data->output_flag = true;
-                data->outfile = strdup(optarg);
+                set_output(data, true);
+                set_outfile(data, optarg);
                 break;
 
             case 'v':
-                if (data->logfile_flag) {
+                if (get_logfile(data)) {
                     printf("-v is set multiple times\n");
                     return -1;
                 }
-                data->logfile_flag = true;
+                set_logfile(data, true);
                 break;
 
             default:
@@ -99,7 +80,7 @@ int get_arguments(int argc, char* argv[], forensic_data *data) {
         return 1;
     }
     else {
-        data->target = strdup(argv[optind]);
+        set_target(data, argv[optind]);
         optind++;
     }
 
