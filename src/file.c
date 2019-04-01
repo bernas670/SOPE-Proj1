@@ -34,6 +34,16 @@ void get_permissions(mode_t mode, char *buf) {
     buf[9] = '\0';
 }
 
+bool is_dir(char *path) {
+
+    struct stat path_stat;
+
+    if (stat(path, &path_stat) == -1)
+        return false;
+
+    return S_ISDIR(path_stat.st_mode);
+}
+
 int get_file_info(char *name, int out_fd) {
 
     struct stat file_stat;
@@ -64,14 +74,17 @@ int get_file_info(char *name, int out_fd) {
     write(out_fd, buf, strlen(buf));
     write(out_fd, ",", 1);
 
+    // time of last access
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_atime)));
     write(out_fd, buf, strlen(buf));
     write(out_fd, ",", 1);
     
+    // time of last modification
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_mtime)));
     write(out_fd, buf, strlen(buf));
     write(out_fd, ",", 1);
 
+    // time of last status change
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_ctime)));
     write(out_fd, buf, strlen(buf));
 

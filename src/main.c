@@ -39,10 +39,15 @@ int main(int argc, char* argv[], char* envp[]) {
         return 1;
     }
 
+    if (is_dir(get_target(data))) {
+        
+    }
+    
     if (get_file_info(get_target(data), fd_out)) {
         delete_forensic(data);
         return 1;
     }
+    
 
 
     printf("\nout: %s, file: %s\n", get_outfile(data), get_target(data));

@@ -1,12 +1,13 @@
 #ifndef FILE_H
 #define FILE_H
 
-int issue_command(char* buf, size_t buf_size);
+#include "stdbool.h"
 
+int issue_command(char* buf, size_t buf_size);
 
 int get_file_info(char *name, int out_fd);
 
-
+bool is_dir(char *path);
 /**
  * @brief Get permissions of a file from the mode_t struct (part of the stat struct)
  * 
