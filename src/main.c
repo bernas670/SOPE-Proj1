@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <fcntl.h>
 
 #include "args.h"
 #include "file.h"
+#include "macros.h"
 
  forensic *data;
 
@@ -22,7 +24,18 @@ int main(int argc, char* argv[], char* envp[]) {
         return 1;
     }
 
-    if (get_file_info(get_target(data), 0)) {
+    int fd_out = STDOUT_FILENO;
+
+    if (get_output(data)) {
+        fd_out = open(get_outfile(data), O_WRONLY | O_APPEND | O_CREAT, MODE);
+    }
+
+    if (fd_out == -1) {
+        delete_forensic(data);
+        return 1;
+    }
+
+    if (get_file_info(get_target(data), fd_out)) {
         delete_forensic(data);
         return 1;
     }

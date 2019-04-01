@@ -47,7 +47,9 @@ int get_file_info(char *name, int out_fd) {
         return 1;
 
     write(out_fd, name, strlen(name));
-    write(STDERR_FILENO, ",", 1);
+    write(out_fd, ",", 1);
+
+    char buf[PIPE_BUF];
 
     char buf[PIPE_BUF];
 
@@ -60,7 +62,6 @@ int get_file_info(char *name, int out_fd) {
 
     write(out_fd, buf, strlen(buf));
     write(out_fd, ",", 1);
-
     sprintf(buf, "%ld,", (size_t) file_stat.st_size);
     write(out_fd, buf, strlen(buf));
 
@@ -127,8 +128,7 @@ int get_file_info(char *name, int out_fd) {
         }
     }
     
+    write(out_fd, "\n", 1);
    
-    printf("\n");
-
     return 0;
 }

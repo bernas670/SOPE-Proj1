@@ -59,7 +59,7 @@ bool get_sha256(forensic *ptr) { return ptr->sha256_flag; }
 void set_sha256(forensic *ptr, bool flag) { ptr->sha256_flag = flag; }
 
 char *get_outfile(forensic *ptr) { return ptr->outfile; }
-void set_outfile(forensic *ptr, char *filename) { ptr->outfile = strdup(filename); }
+void set_outfile(forensic *ptr, char *filename) { ptr->outfile = strcat(strdup(filename), ".csv"); }
 
 char *get_target(forensic *ptr) { return ptr->target; }
 void set_target(forensic *ptr, char *targetname) { ptr->target = strdup(targetname); }
