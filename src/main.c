@@ -40,45 +40,9 @@ int main(int argc, char* argv[], char* envp[]) {
         return 1;
     }
 
-    if (is_dir(get_target(data))) {
+     
+    analyse_target(get_target(data), fd_out);
 
-        DIR *directory = opendir(get_target(data));
-
-        if (directory == NULL) {
-            delete_forensic(data);
-            return 1;
-        }
-
-        struct dirent *ds;
-
-        if (chdir(get_target(data)) == -1)
-            return 1;
-
-        while ((ds = readdir(directory)) != NULL) {     // TODO : use errno in case of error
-            if (strcmp(ds->d_name, ".") == 0 || strcmp(ds->d_name, "..") == 0)
-                continue;
-
-            printf("%s\n", ds->d_name);
-            
-            if (get_file_info(ds->d_name, fd_out)) {
-            delete_forensic(data);
-            return 1;
-            }  
-            
-        }
-
-        
-    }
-    else {
-        if (get_file_info(get_target(data), fd_out)) {
-        delete_forensic(data);
-        return 1;
-        }
-    }
-    
-    
-
-    printf("\nout: %s, file: %s\n", get_outfile(data), get_target(data));
 
     delete_forensic(data);
 

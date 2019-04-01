@@ -21,7 +21,7 @@ Forensic analysis utility for directories and files in Unix / Linux environment.
 - [x] Extract the solicited information from just one file and print it to the standard output according to the parsed arguments.
 	- [x] Same procedure but now, implementing the option **`-o`** (writing in the specified file).
 - [x] Repeat the previous step for all files in a directory.
-- [ ] When a directory is found, create a child process capable of repeating its father's functions, performing a similar job to the previous step.
+- [x] When a directory is found, create a child process capable of repeating its father's functions, performing a similar job to the previous step.
 - [ ] Implement recursive analysis of a directory tree.
 - [ ] Add logging funtionalities.
 - [ ] Handle the signal associated to CTRL+C.

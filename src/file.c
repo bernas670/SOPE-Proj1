@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <dirent.h>
 
 #include "file.h"
 #include "macros.h"
@@ -139,5 +140,45 @@ int get_file_info(char *name, int out_fd) {
     
     write(out_fd, "\n", 1);
    
+    return 0;
+}
+
+
+int analyse_target(char *target, int out_fd) {
+
+    if (!is_dir(target)) {
+        get_file_info(target, out_fd);  // TODO : handle errors
+        return 0;
+    }
+
+    int child_pid = fork();
+
+    if (child_pid == -1)
+        return -1;
+    else if (child_pid != 0) {
+        return 0;
+    }
+
+    DIR *dir = opendir(target);
+
+    if (dir == NULL)
+        return 1;
+
+    struct dirent *ds;
+
+    if (chdir(target) == -1)
+        return 1;
+
+    while ((ds = readdir(dir)) != NULL) {     // TODO : use errno in case of error
+
+        if (!strcmp(ds->d_name, "."))
+                continue;
+        if (!strcmp(ds->d_name, ".."))
+                continue;
+
+        analyse_target(ds->d_name, out_fd);
+            
+    }
+
     return 0;
 }
