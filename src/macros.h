@@ -7,5 +7,9 @@
 #define PIPE_BUF    4096
 
 
+// FILE MACROS
+#define MODE        0750
+
+
 
 #endif
