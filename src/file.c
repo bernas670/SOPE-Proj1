@@ -14,20 +14,16 @@
 
 extern forensic *data;
 
-int issue_command(char* buf){
+int issue_command(char* buf, size_t buf_size) {
 
-       FILE* filep=popen(buf,"r"); //READ-ONLY
+       FILE* filep = popen(buf, "r"); //READ-ONLY
 
-        if(filep==NULL){
+        if (filep == NULL)
             return 1;
-        }
 
-        
-        fread(buf,1, 100,filep);
-        
+        fread(buf,1, buf_size,filep);
         pclose(filep);
-        return 0;
-            
+        return 0;      
 }
 
 void get_permissions(mode_t mode, char *buf) {
@@ -40,7 +36,6 @@ void get_permissions(mode_t mode, char *buf) {
 
 int get_file_info(char *name, int out_fd) {
 
-
     struct stat file_stat;
 
     if (stat(name, &file_stat) == -1)       // use errno here (file doesnt exist)
@@ -51,12 +46,12 @@ int get_file_info(char *name, int out_fd) {
 
     char buf[PIPE_BUF];
 
-    char buf[PIPE_BUF];
 
     //using popen() inside issue_command
     strcpy(buf, "file --brief --preserve-date --print0 --print0 ");
     strcat(buf, name);
-    if(issue_command(buf)){
+    
+    if (issue_command(buf, sizeof(buf))) {
         return 1;
     }
 
@@ -79,7 +74,6 @@ int get_file_info(char *name, int out_fd) {
 
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_ctime)));
     write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
 
     // CRYPTOGRAPHY 
 
@@ -90,12 +84,13 @@ int get_file_info(char *name, int out_fd) {
             strcpy(buf, "md5sum ");
             strcat(buf, name);
 
-            if(issue_command(buf)==1){
+            if (issue_command(buf, sizeof(buf))) {
                return 1;
             }
-        
-            write(out_fd, buf, strlen(buf));
+            
             write(out_fd, ",", 1);
+            char *crypt = strtok(buf, " ");
+            write(out_fd, crypt, strlen(crypt));
             
         }
 
@@ -104,13 +99,13 @@ int get_file_info(char *name, int out_fd) {
             strcpy(buf, "sha1sum ");
             strcat(buf, name);
 
-            if(issue_command(buf)==1){
+            if (issue_command(buf, sizeof(buf))) {
                return 1;
             }
-        
-            write(out_fd, buf, strlen(buf));
-            write(out_fd, ",", 1);
             
+            write(out_fd, ",", 1);
+            char *crypt = strtok(buf, " ");
+            write(out_fd, crypt, strlen(crypt));
         }
 
         if(get_sha256(data)){
@@ -118,13 +113,13 @@ int get_file_info(char *name, int out_fd) {
             strcpy(buf, "sha256sum ");
             strcat(buf, name);
 
-            if(issue_command(buf)==1){
+            if (issue_command(buf, sizeof(buf))) {
                return 1;
             }
-        
-            write(out_fd, buf, strlen(buf));
-            write(out_fd, ",", 1);
             
+            write(out_fd, ",", 1);
+            char *crypt = strtok(buf, " ");
+            write(out_fd, crypt, strlen(crypt));
         }
     }
     

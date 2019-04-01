@@ -17,8 +17,8 @@ Forensic analysis utility for directories and files in Unix / Linux environment.
 
 
 ## Development Plan
-- [ ] Receive, handle and save arguments and environment variables.
-- [ ] Extract the solicited information from just one file and print it to the standard output according to the parsed arguments.
+- [x] Receive, handle and save arguments and environment variables.
+- [x] Extract the solicited information from just one file and print it to the standard output according to the parsed arguments.
 	- [x] Same procedure but now, implementing the option **`-o`** (writing in the specified file).
 - [ ] Repeat the previous step for all files in a directory.
 - [ ] When a directory is found, create a child process capable of repeating its father's functions, performing a similar job to the previous step.

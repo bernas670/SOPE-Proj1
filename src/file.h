@@ -1,6 +1,8 @@
 #ifndef FILE_H
 #define FILE_H
 
+int issue_command(char* buf, size_t buf_size);
+
 
 int get_file_info(char *name, int out_fd);
 
