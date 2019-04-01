@@ -26,6 +26,7 @@ int issue_command(char* buf, size_t buf_size) {
         return 0;      
 }
 
+// TODO : change permission string to "rwx|rwx|rwx"
 void get_permissions(mode_t mode, char *buf) {
     const char chars[] = "rwxrwxrwx";
     for (size_t i = 0; i < 9; i++) {
