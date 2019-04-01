@@ -1,3 +1,6 @@
+#ifndef FORENSIC_H
+#define FORENSIC_H
+
 #include <stdbool.h>
 
 
@@ -37,3 +40,6 @@ void set_outfile(forensic *ptr, char *filename);
 
 char *get_target(forensic *ptr);
 void set_target(forensic *ptr, char *targetname);
+
+#endif
+

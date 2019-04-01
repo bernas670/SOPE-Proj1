@@ -5,17 +5,19 @@
 
 #include "forensic.h"
 
-
+/**
+ * @brief Struct that contains all the information parsed as a command line argument.
+ */
 struct st_forensic {
-    bool recursive_flag;    // -r flag
-    bool hash_flag;         // -h flag
-    bool output_flag;       // -o flag
-    bool logfile_flag;      // -v flag
-    bool md5_flag;          // md5 flag
-    bool sha1_flag;         // sha1 flag
-    bool sha256_flag;       // sha256 flag
-    char *outfile;          // name of the CSV output file
-    char *target;           // name of the file or starting directory that will be analysed
+    bool recursive_flag;    /**< -r flag */
+    bool hash_flag;         /**< -h flag */
+    bool output_flag;       /**< -o flag */
+    bool logfile_flag;      /**< -v flag */
+    bool md5_flag;          /**< md5 flag */
+    bool sha1_flag;         /**< sha1 flag */
+    bool sha256_flag;       /**< sha256 flag */
+    char *outfile;          /**< name of the CSV output file */
+    char *target;           /**< name of the file or starting directory that will be analysed */
 };
 
 
