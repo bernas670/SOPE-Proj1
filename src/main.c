@@ -8,10 +8,11 @@
 #include "args.h"
 #include "file.h"
 
+ forensic *data;
 
 int main(int argc, char* argv[], char* envp[]) {
 
-    forensic *data = create_forensic();
+    data = create_forensic();
 
     if (data == NULL)
         return 1;
