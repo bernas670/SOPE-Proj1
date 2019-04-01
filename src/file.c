@@ -11,7 +11,7 @@
 #include "file.h"
 #include "macros.h"
 
-void strmode(mode_t mode, char *buf) {
+void get_permissions(mode_t mode, char *buf) {
     const char chars[] = "rwxrwxrwx";
     for (size_t i = 0; i < 9; i++) {
         buf[i] = (mode & (1 << (8 - i))) ? chars[i] : '-';
@@ -67,7 +67,7 @@ int get_file_info(char *name, int out_fd) {
     sprintf(buf, "%ld,", (size_t) file_stat.st_size);
     write(out_fd, buf, strlen(buf));
 
-    strmode(file_stat.st_mode, buf);
+    get_permissions(file_stat.st_mode, buf);
     write(out_fd, buf, strlen(buf));
     write(out_fd, ",", 1);
 
