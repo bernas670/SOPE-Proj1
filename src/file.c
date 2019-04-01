@@ -10,6 +10,25 @@
 
 #include "file.h"
 #include "macros.h"
+#include "forensic.h"
+
+extern forensic *data;
+
+int issue_command(char* buf){
+
+       FILE* filep=popen(buf,"r"); //READ-ONLY
+
+        if(filep==NULL){
+            return 1;
+        }
+
+        
+        fread(buf,1, 100,filep);
+        
+        pclose(filep);
+        return 0;
+            
+}
 
 void get_permissions(mode_t mode, char *buf) {
     const char chars[] = "rwxrwxrwx";
@@ -21,8 +40,6 @@ void get_permissions(mode_t mode, char *buf) {
 
 int get_file_info(char *name, int out_fd) {
 
-    if (!out_fd)
-        out_fd = STDOUT_FILENO;
 
     struct stat file_stat;
 
@@ -34,39 +51,17 @@ int get_file_info(char *name, int out_fd) {
 
     char buf[PIPE_BUF];
 
-    /*
-    int fd[2];
+    char buf[PIPE_BUF];
 
-    if (pipe(fd))
-        return 1;
-
-    int buf_size;
-
-    //int pid = getpid();
-    int c_pid = fork();
-
-    if (c_pid == -1) {
+    //using popen() inside issue_command
+    strcpy(buf, "file --brief --preserve-date --print0 --print0 ");
+    strcat(buf, name);
+    if(issue_command(buf)){
         return 1;
     }
-    else if (c_pid == 0) {
-        close(fd[READ]);
-        dup2(fd[WRITE], STDOUT_FILENO);
-        dup2(fd[WRITE], STDERR_FILENO);
-        close(fd[WRITE]);
-        
-        execlp("file", "--brief", name, (char *) NULL); // use errno
-        printf("failed exec!\n");
-        return 1;
-    }
-    else {
-        close(fd[WRITE]);
-        buf_size = read(fd[READ], buf, sizeof(buf));
-        wait(NULL);
-    }
 
-    write(out_fd, buf, buf_size);
+    write(out_fd, buf, strlen(buf));
     write(out_fd, ",", 1);
-    */
     sprintf(buf, "%ld,", (size_t) file_stat.st_size);
     write(out_fd, buf, strlen(buf));
 
@@ -84,8 +79,54 @@ int get_file_info(char *name, int out_fd) {
 
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_ctime)));
     write(out_fd, buf, strlen(buf));
+    write(out_fd, ",", 1);
 
-    // CRYPTOGRAPHY MISSING
+    // CRYPTOGRAPHY 
+
+    if(get_hash(data)){
+
+        if(get_md5(data)){
+
+            strcpy(buf, "md5sum ");
+            strcat(buf, name);
+
+            if(issue_command(buf)==1){
+               return 1;
+            }
+        
+            write(out_fd, buf, strlen(buf));
+            write(out_fd, ",", 1);
+            
+        }
+
+        if(get_sha1(data)){
+
+            strcpy(buf, "sha1sum ");
+            strcat(buf, name);
+
+            if(issue_command(buf)==1){
+               return 1;
+            }
+        
+            write(out_fd, buf, strlen(buf));
+            write(out_fd, ",", 1);
+            
+        }
+
+        if(get_sha256(data)){
+
+            strcpy(buf, "sha256sum ");
+            strcat(buf, name);
+
+            if(issue_command(buf)==1){
+               return 1;
+            }
+        
+            write(out_fd, buf, strlen(buf));
+            write(out_fd, ",", 1);
+            
+        }
+    }
     
     write(out_fd, "\n", 1);
    

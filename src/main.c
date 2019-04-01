@@ -10,6 +10,7 @@
 #include "file.h"
 #include "macros.h"
 
+ forensic *data;
 
 forensic *data;
 
