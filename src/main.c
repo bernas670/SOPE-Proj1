@@ -11,9 +11,12 @@
 #include "macros.h"
 
 
+forensic *data;
+
+
 int main(int argc, char* argv[], char* envp[]) {
 
-    forensic *data = create_forensic();
+    data = create_forensic();
 
     if (data == NULL)
         return 1;
@@ -25,8 +28,9 @@ int main(int argc, char* argv[], char* envp[]) {
 
     int fd_out = STDOUT_FILENO;
 
+    // TODO : check if file already exists
     if (get_output(data)) {
-        fd_out = open(get_outfile(data), O_WRONLY | O_APPEND | O_CREAT, MODE);
+        fd_out = open(get_outfile(data), O_WRONLY | O_CREAT, MODE);
     }
 
     if (fd_out == -1) {
