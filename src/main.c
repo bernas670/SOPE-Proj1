@@ -18,6 +18,8 @@ forensic *data;
 
 int main(int argc, char* argv[], char* envp[]) {
 
+    printf("success\n");
+
     data = create_forensic();
 
     if (data == NULL)
@@ -27,6 +29,12 @@ int main(int argc, char* argv[], char* envp[]) {
         delete_forensic(data);
         return 1;
     }
+
+    int fd_log = 0;
+    if (get_log(data) && get_logfile(data) != NULL) {
+        fd_log = open(get_logfile(data), O_WRONLY | O_APPEND | O_CREAT, MODE);
+    }
+
 
     int fd_out = STDOUT_FILENO;
 
@@ -39,11 +47,11 @@ int main(int argc, char* argv[], char* envp[]) {
         delete_forensic(data);
         return 1;
     }
-
      
     analyse_target(get_target(data), fd_out);
 
-
+    close(fd_out);          // TODO: use errno
+    close(fd_log);
     delete_forensic(data);
 
     return 0;

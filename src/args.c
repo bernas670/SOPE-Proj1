@@ -62,11 +62,12 @@ int get_arguments(int argc, char* argv[], forensic *data) {
                 break;
 
             case 'v':
-                if (get_logfile(data)) {
+                if (get_log(data)) {
                     printf("-v is set multiple times\n");
                     return -1;
                 }
-                set_logfile(data, true);
+                set_log(data, true);
+                set_logfile(data);
                 break;
 
             default:

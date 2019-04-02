@@ -22,7 +22,7 @@ $(EXEC): $(OBJECTS)
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
 	$(dir_guard)
 	$(CC) -c $(CFLAGS) $< -o $@
- 
+
 # To remove generated files
 clean:
 	rm -f $(EXEC) $(OBJECTS)

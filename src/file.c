@@ -151,35 +151,41 @@ int analyse_target(char *target, int out_fd) {
         return 0;
     }
 
-    int child_pid = fork();
-
-    if (child_pid == -1)
-        return -1;
-    else if (child_pid != 0)
-        return 0;
-
-
     DIR *dir = opendir(target);
 
     if (dir == NULL)
         return 1;
 
     struct dirent *ds;
-
-    if (chdir(target) == -1)
-        return 1;
-
+    
     while ((ds = readdir(dir)) != NULL) {     // TODO : use errno in case of error
 
         if (!strcmp(ds->d_name, "."))
                 continue;
         if (!strcmp(ds->d_name, ".."))
                 continue;
+        
+        char path[500];
+        strcpy(path, target);
+        strcat(path, "/");
+        strcat(path, ds->d_name);
 
-        if (is_dir(ds->d_name) && !get_recursive(data))
+        if (is_dir(path)) {
+            if (get_recursive(data)) {
+                int child_pid = fork();
+
+                if (child_pid == -1)
+                    return -1;
+                else if (child_pid == 0)
+                {
+                    analyse_target(path, out_fd);
+                    exit(EXIT_SUCCESS);
+                }
+            }    
             continue;
+        }
 
-        analyse_target(ds->d_name, out_fd);
+        get_file_info(path, out_fd);
     }
 
     return 0;

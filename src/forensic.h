@@ -23,8 +23,8 @@ void set_hash(forensic *ptr, bool flag);
 bool get_output(forensic *ptr);
 void set_output(forensic *ptr, bool flag);
 
-bool get_logfile(forensic *ptr);
-void set_logfile(forensic *ptr, bool flag);
+bool get_log(forensic *ptr);
+void set_log(forensic *ptr, bool flag);
 
 bool get_md5(forensic *ptr);
 void set_md5(forensic *ptr, bool flag);
@@ -37,6 +37,9 @@ void set_sha256(forensic *ptr, bool flag);
 
 char *get_outfile(forensic *ptr);
 void set_outfile(forensic *ptr, char *filename);
+
+char *get_logfile(forensic *ptr);
+void set_logfile(forensic *ptr);
 
 char *get_target(forensic *ptr);
 void set_target(forensic *ptr, char *targetname);

@@ -12,11 +12,12 @@ struct st_forensic {
     bool recursive_flag;    /**< -r flag */
     bool hash_flag;         /**< -h flag */
     bool output_flag;       /**< -o flag */
-    bool logfile_flag;      /**< -v flag */
+    bool log_flag;          /**< -v flag */
     bool md5_flag;          /**< md5 flag */
     bool sha1_flag;         /**< sha1 flag */
     bool sha256_flag;       /**< sha256 flag */
     char *outfile;          /**< name of the CSV output file */
+    char *logfile;          /**< name of the logfile */
     char *target;           /**< name of the file or starting directory that will be analysed */
 };
 
@@ -46,8 +47,8 @@ void set_hash(forensic *ptr, bool flag) { ptr->hash_flag = flag; }
 bool get_output(forensic *ptr) { return ptr->output_flag; }
 void set_output(forensic *ptr, bool flag) { ptr->output_flag = flag; }
 
-bool get_logfile(forensic *ptr) { return ptr->logfile_flag; }
-void set_logfile(forensic *ptr, bool flag) { ptr->logfile_flag = flag; }
+bool get_log(forensic *ptr) { return ptr->log_flag; }
+void set_log(forensic *ptr, bool flag) { ptr->log_flag = flag; }
 
 bool get_md5(forensic *ptr) { return ptr->md5_flag; }
 void set_md5(forensic *ptr, bool flag) { ptr->md5_flag = flag; }
@@ -60,6 +61,9 @@ void set_sha256(forensic *ptr, bool flag) { ptr->sha256_flag = flag; }
 
 char *get_outfile(forensic *ptr) { return ptr->outfile; }
 void set_outfile(forensic *ptr, char *filename) { ptr->outfile = strcat(strdup(filename), ".csv"); }
+
+char *get_logfile(forensic *ptr) { return ptr->logfile; }
+void set_logfile(forensic *ptr) { ptr->logfile = getenv("LOGFILENAME"); }
 
 char *get_target(forensic *ptr) { return ptr->target; }
 void set_target(forensic *ptr, char *targetname) { ptr->target = strdup(targetname); }
