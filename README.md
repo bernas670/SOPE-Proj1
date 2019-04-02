@@ -22,7 +22,7 @@ Forensic analysis utility for directories and files in Unix / Linux environment.
 	- [x] Same procedure but now, implementing the option **`-o`** (writing in the specified file).
 - [x] Repeat the previous step for all files in a directory.
 - [x] When a directory is found, create a child process capable of repeating its father's functions, performing a similar job to the previous step.
-- [ ] Implement recursive analysis of a directory tree.
+- [x] Implement recursive analysis of a directory tree.
 - [ ] Add logging funtionalities.
 - [ ] Handle the signal associated to CTRL+C.
 - [ ] Implement issuing and handling of the signals SIGUSR1 and SIGUSR2.
