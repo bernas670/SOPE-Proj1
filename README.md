@@ -24,5 +24,5 @@ Forensic analysis utility for directories and files in Unix / Linux environment.
 - [x] When a directory is found, create a child process capable of repeating its father's functions, performing a similar job to the previous step.
 - [x] Implement recursive analysis of a directory tree.
 - [ ] Add logging funtionalities.
-- [ ] Handle the signal associated to CTRL+C.
+- [x] Handle the signal associated to CTRL+C.
 - [ ] Implement issuing and handling of the signals SIGUSR1 and SIGUSR2.

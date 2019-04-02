@@ -8,6 +8,7 @@
 #include <string.h>
 #include <limits.h>
 #include <dirent.h>
+#include <signal.h>
 
 #include "file.h"
 #include "macros.h"
@@ -149,6 +150,10 @@ int get_file_info(char *name, int out_fd) {
 }
 
 
+void sigint_handler_child(int signo) {
+    exit(EXIT_SUCCESS);
+}
+
 int analyse_target(char *target, int out_fd) {
 
     if (!is_dir(target)) {
@@ -162,6 +167,8 @@ int analyse_target(char *target, int out_fd) {
         return 1;
 
     struct dirent *ds;
+
+    int num_child = 0;
     
     while ((ds = readdir(dir)) != NULL) {     // TODO : use errno in case of error
 
@@ -176,6 +183,8 @@ int analyse_target(char *target, int out_fd) {
         strcat(path, ds->d_name);
 
         if (is_dir(path)) {
+            num_child++;
+
             if (get_recursive(data)) {
                 int child_pid = fork();
 
@@ -183,6 +192,11 @@ int analyse_target(char *target, int out_fd) {
                     return -1;
                 else if (child_pid == 0)
                 {
+                    if (signal(SIGINT, sigint_handler_child) == SIG_ERR) {
+                        fputs("an error occurred while setting a signal handler. \n", stderr);
+                        return EXIT_FAILURE;
+                    }
+
                     analyse_target(path, out_fd);
                     exit(EXIT_SUCCESS);
                 }
@@ -193,5 +207,10 @@ int analyse_target(char *target, int out_fd) {
         get_file_info(path, out_fd);
     }
 
+    while (num_child > 0) {
+        wait(NULL);
+        num_child--;
+    }
+        
     return 0;
 }

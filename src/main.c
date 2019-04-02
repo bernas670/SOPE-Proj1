@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <string.h>
+#include <signal.h>
 
 #include "args.h"
 #include "file.h"
@@ -16,9 +17,17 @@
 forensic *data;
 
 
+void sigint_handler(int signo) {
+    printf("\nexecution stopped\n");
+    exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char* argv[], char* envp[]) {
 
-    printf("success\n");
+    if (signal(SIGINT, sigint_handler) == SIG_ERR) {
+        fputs("an error occurred while setting a signal handler. \n", stderr);
+        return EXIT_FAILURE;
+    }
 
     data = create_forensic();
 
