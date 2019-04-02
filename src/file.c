@@ -49,15 +49,16 @@ bool is_dir(char *path) {
 int get_file_info(char *name, int out_fd) {
 
     struct stat file_stat;
+    char output[PIPE_BUF];  // string that will be written to out_fd
 
-    if (stat(name, &file_stat) == -1)       // use errno here (file doesnt exist)
+    if (stat(name, &file_stat) == -1)   // use errno here (file doesnt exist)
         return 1;
 
-    write(out_fd, name, strlen(name));
-    write(out_fd, ",", 1);
+    /* add file NAME to the output string */
+    strcat(output, name);
+    strcat(output, ",");
 
     char buf[PIPE_BUF];
-
 
     //using popen() inside issue_command
     strcpy(buf, "file --brief --preserve-date --print0 --print0 ");
@@ -67,31 +68,34 @@ int get_file_info(char *name, int out_fd) {
         return 1;
     }
 
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
-    sprintf(buf, "%ld,", (size_t) file_stat.st_size);
-    write(out_fd, buf, strlen(buf));
-
-    get_permissions(file_stat.st_mode, buf);
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
-
-    // time of last access
-    strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_atime)));
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
+    /* add file TYPE to the output string */
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
     
-    // time of last modification
+    /* add file SIZE to the output string */
+    sprintf(buf, "%ld,", (size_t) file_stat.st_size);
+    strncat(output, buf, strlen(buf));
+
+    /* add file PERMISSIONS to the output string */    
+    get_permissions(file_stat.st_mode, buf);
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+
+    /* get TIME OF LAST ACCESS */
+    strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_atime)));
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+    
+    /* get TIME OF LAST MODIFICATION */
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_mtime)));
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
-
-    // time of last status change
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+    
+    /* get TIME OF LAST ACCESS */
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_ctime)));
-    write(out_fd, buf, strlen(buf));
-
+    strncat(output, buf, strlen(buf));
+    
     // CRYPTOGRAPHY 
-
     if(get_hash(data)){
 
         if(get_md5(data)){
@@ -103,10 +107,9 @@ int get_file_info(char *name, int out_fd) {
                return 1;
             }
             
-            write(out_fd, ",", 1);
+            strcat(output, ",");
             char *crypt = strtok(buf, " ");
-            write(out_fd, crypt, strlen(crypt));
-            
+            strcat(output, crypt);                      
         }
 
         if(get_sha1(data)){
@@ -117,10 +120,10 @@ int get_file_info(char *name, int out_fd) {
             if (issue_command(buf, sizeof(buf))) {
                return 1;
             }
-            
-            write(out_fd, ",", 1);
+
+            strcat(output, ",");
             char *crypt = strtok(buf, " ");
-            write(out_fd, crypt, strlen(crypt));
+            strcat(output, crypt);
         }
 
         if(get_sha256(data)){
@@ -132,14 +135,16 @@ int get_file_info(char *name, int out_fd) {
                return 1;
             }
             
-            write(out_fd, ",", 1);
+            strcat(output, ",");
             char *crypt = strtok(buf, " ");
-            write(out_fd, crypt, strlen(crypt));
+            strcat(output, crypt);
         }
     }
     
-    write(out_fd, "\n", 1);
-   
+    strcat(output, "\n");
+    
+    write(out_fd, output, strlen(output));
+
     return 0;
 }
 
