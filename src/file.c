@@ -155,9 +155,9 @@ int analyse_target(char *target, int out_fd) {
 
     if (child_pid == -1)
         return -1;
-    else if (child_pid != 0) {
+    else if (child_pid != 0)
         return 0;
-    }
+
 
     DIR *dir = opendir(target);
 
@@ -176,8 +176,10 @@ int analyse_target(char *target, int out_fd) {
         if (!strcmp(ds->d_name, ".."))
                 continue;
 
+        if (is_dir(ds->d_name) && !get_recursive(data))
+            continue;
+
         analyse_target(ds->d_name, out_fd);
-            
     }
 
     return 0;
