@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
@@ -15,6 +16,22 @@
 #include "forensic.h"
 
 extern forensic *data;
+extern double start_time;
+extern int fd_log;
+
+void write_log(char* act) {
+
+    struct timeval curr_time;
+    gettimeofday(&curr_time, NULL);
+
+    int pid = getpid();
+    double time_stamp = curr_time.tv_sec * 1000 + curr_time.tv_usec * 0.001 - start_time;
+
+
+    char log[500];
+    sprintf(log, "%.2f - %06d - %s\n", time_stamp, pid, act);
+    write(fd_log, log, strlen(log));
+}
 
 int issue_command(char* buf, size_t buf_size) {
 
@@ -51,6 +68,7 @@ int get_file_info(char *name, int out_fd) {
 
     struct stat file_stat;
     char output[PIPE_BUF];  // string that will be written to out_fd
+    output[0] = '\0';
 
     if (stat(name, &file_stat) == -1)   // use errno here (file doesnt exist)
         return 1;
@@ -145,6 +163,9 @@ int get_file_info(char *name, int out_fd) {
     strcat(output, "\n");
     
     write(out_fd, output, strlen(output));
+    printf("%s\n", name);
+    sprintf(buf, "ANALIZED %s", name);
+    write_log(buf);
 
     return 0;
 }
@@ -160,6 +181,8 @@ int analyse_target(char *target, int out_fd) {
         get_file_info(target, out_fd);  // TODO : handle errors
         return 0;
     }
+
+
 
     DIR *dir = opendir(target);
 

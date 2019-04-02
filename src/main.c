@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <string.h>
@@ -15,7 +15,8 @@
 
 
 forensic *data;
-
+double start_time;
+int fd_log = 0;
 
 void sigint_handler(int signo) {
     printf("\nexecution stopped\n");
@@ -23,6 +24,11 @@ void sigint_handler(int signo) {
 }
 
 int main(int argc, char* argv[], char* envp[]) {
+
+    struct timeval start_time_struct;
+    if (gettimeofday(&start_time_struct, NULL) == -1)  // TODO: use errno
+        return EXIT_FAILURE;
+    start_time = start_time_struct.tv_sec * 1000 + start_time_struct.tv_usec * 0.001;
 
     if (signal(SIGINT, sigint_handler) == SIG_ERR) {
         fputs("an error occurred while setting a signal handler. \n", stderr);
@@ -39,7 +45,6 @@ int main(int argc, char* argv[], char* envp[]) {
         return 1;
     }
 
-    int fd_log = 0;
     if (get_log(data) && get_logfile(data) != NULL) {
         fd_log = open(get_logfile(data), O_WRONLY | O_APPEND | O_CREAT, MODE);
     }
