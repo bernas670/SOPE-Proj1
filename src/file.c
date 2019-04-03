@@ -235,14 +235,14 @@ int analyse_target(char *target, int out_fd) {
         return 0;
     }
 
+    //if it is a directory
+    kill(get_pid(data), SIGUSR1);
+
     DIR *dir = opendir(target);
 
     if (dir == NULL)
         return 1;
 
-    
-    //if it is a directory
-    kill(get_pid(data), SIGUSR1);
     struct dirent *ds;
 
     int num_child = 0;
