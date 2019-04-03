@@ -44,5 +44,11 @@ void set_logfile(forensic *ptr);
 char *get_target(forensic *ptr);
 void set_target(forensic *ptr, char *targetname);
 
+void increment_num_dir(forensic *ptr);
+int get_num_dir(forensic *ptr);
+
+void increment_num_file(forensic *ptr);
+int get_num_file(forensic *ptr);
+
 #endif
 

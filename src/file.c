@@ -38,6 +38,12 @@ void analize_log(char* name) {
     write_log(buf);
 }
 
+void signal_log(int signo, char *signame) {
+    char buf[250];
+    sprintf(buf, "SIGNAL %s #%d (%s)", signame, signo, strsignal(signo));
+    write_log(buf);
+}
+
 int issue_command(char* buf, size_t buf_size) {
 
     FILE* filep = popen(buf, "r"); //READ-ONLY

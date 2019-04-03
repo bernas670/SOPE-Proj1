@@ -5,6 +5,10 @@
 
 void write_log(char* act);
 
+void analize_log(char* name);
+
+void signal_log(int signo, char *signame);
+
 int issue_command(char* buf, size_t buf_size);
 
 int file_info(char *name, int out_fd);

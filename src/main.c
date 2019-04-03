@@ -20,6 +20,7 @@ int fd_log = 0;
 
 void sigint_handler(int signo) {
     printf("\nexecution stopped\n");
+    signal_log(signo, "SIGINT");
     exit(EXIT_SUCCESS);
 }
 

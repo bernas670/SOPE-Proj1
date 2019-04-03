@@ -31,10 +31,7 @@ int get_arguments(int argc, char* argv[], forensic *data) {
                 set_hash(data, true);
                 
                 char *ptr = strtok(optarg, ",");
-                for (size_t i = 0; ; i++) {
-
-                    if (ptr == NULL)
-                        break;
+                while (ptr != NULL) {
 
                     if (strcmp(ptr, "md5") == 0)
                         set_md5(data, true);
