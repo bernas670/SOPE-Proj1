@@ -50,5 +50,7 @@ int get_num_dir(forensic *ptr);
 void increment_num_file(forensic *ptr);
 int get_num_file(forensic *ptr);
 
+int get_pid(forensic *ptr);
+
 #endif
 

@@ -2,6 +2,7 @@
 #define FILE_H
 
 #include "stdbool.h"
+void sig_usr(int signum);
 
 void write_log(char* act);
 

@@ -19,6 +19,22 @@ extern forensic *data;
 extern double start_time;
 extern int fd_log;
 
+
+//handler for SIGUSR signal
+//same handler to different signals
+
+void sig_usr(int signo){ 
+    if(signo==SIGUSR1){
+        increment_num_dir(data);
+        signal_log(signo, "SIGUSR1");
+        printf("New directory: %d/%d directories/files at this time\n",get_num_dir(data),get_num_file(data));
+    }
+    if(signo==SIGUSR2){
+        increment_num_file(data);
+        signal_log(signo, "SIGUSR2");
+    }
+}
+
 void write_log(char* act) {
 
     struct timeval curr_time;
@@ -201,6 +217,7 @@ int file_info(char *name, int out_fd) {
     strcat(output, "\n");
     
     write(out_fd, output, strlen(output));
+    kill(get_pid(data), SIGUSR2);
     analize_log(name);
 
     return 0;
@@ -223,6 +240,9 @@ int analyse_target(char *target, int out_fd) {
     if (dir == NULL)
         return 1;
 
+    
+    //if it is a directory
+    kill(get_pid(data), SIGUSR1);
     struct dirent *ds;
 
     int num_child = 0;

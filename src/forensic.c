@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 
 #include "forensic.h"
@@ -19,6 +21,7 @@ struct st_forensic {
     char *outfile;          /**< name of the CSV output file */
     char *logfile;          /**< name of the logfile */
     char *target;           /**< name of the file or starting directory that will be analysed */
+    int pid;                /**< process id of the original process */
     int num_dir;            /**< number of directories analyzed */
     int num_file;           /**< number of files analyse */
 };
@@ -31,6 +34,8 @@ forensic* create_forensic() {
         return NULL;
 
     memset(ptr, 0, sizeof(forensic));
+
+    ptr->pid = getpid();
 
     return ptr;
 }
@@ -75,3 +80,5 @@ int get_num_dir(forensic *ptr) { return ptr->num_dir; }
 
 void increment_num_file(forensic *ptr) { ptr->num_file++; }
 int get_num_file(forensic *ptr) { return ptr->num_file; }
+
+int get_pid(forensic *ptr) { return ptr->pid; }

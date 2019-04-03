@@ -18,6 +18,8 @@ forensic *data;
 double start_time;
 int fd_log = 0;
 
+
+
 void sigint_handler(int signo) {
     printf("\nexecution stopped\n");
     signal_log(signo, "SIGINT");
@@ -25,6 +27,27 @@ void sigint_handler(int signo) {
 }
 
 int main(int argc, char* argv[]) {
+
+    /*
+        installing handler to  SIGUSR1
+    */
+
+   struct sigaction newAction;
+   newAction.sa_handler=sig_usr;
+   sigemptyset(&newAction.sa_mask);
+   newAction.sa_flags= SA_RESTART;
+
+   if(sigaction(SIGUSR1,&newAction,NULL)<0){
+       printf("Error installling SIGUSR1 handler\n");
+       exit(1);
+   }
+
+    if(sigaction(SIGUSR2,&newAction,NULL)<0){
+       printf("Error installling SIGUSR1 handler\n");
+       exit(1);
+    }
+
+
 
     struct timeval start_time_struct;
     if (gettimeofday(&start_time_struct, NULL) == -1)  // TODO: use errno
@@ -64,6 +87,8 @@ int main(int argc, char* argv[]) {
     }
      
     analyse_target(get_target(data), fd_out);
+
+    printf("New directory: %d/%d directories/files at this time\n",get_num_dir(data),get_num_file(data));
 
     close(fd_out);          // TODO: use errno
     close(fd_log);
