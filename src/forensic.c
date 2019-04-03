@@ -19,6 +19,8 @@ struct st_forensic {
     char *outfile;          /**< name of the CSV output file */
     char *logfile;          /**< name of the logfile */
     char *target;           /**< name of the file or starting directory that will be analysed */
+    int num_dir;
+    int num_file;
 };
 
 
@@ -67,3 +69,10 @@ void set_logfile(forensic *ptr) { ptr->logfile = getenv("LOGFILENAME"); }
 
 char *get_target(forensic *ptr) { return ptr->target; }
 void set_target(forensic *ptr, char *targetname) { ptr->target = strdup(targetname); }
+
+void increment_num_dir(forensic *ptr){ptr->num_dir++;}
+int get_num_dir(forensic *ptr){  return ptr->num_dir;}
+
+void increment_num_file(forensic *ptr){ptr->num_file++;}
+int get_num_file(forensic *ptr){ return ptr->num_file;}
+

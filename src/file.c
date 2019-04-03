@@ -4,27 +4,64 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
 #include <dirent.h>
+#include <signal.h>
 
 #include "file.h"
 #include "macros.h"
 #include "forensic.h"
 
 extern forensic *data;
+extern double start_time;
+extern int fd_log;
+
+
+//handler for SIGUSR signal
+//same handler to different signals
+
+void sig_usr(int signum){ 
+    if(signum==SIGUSR1){
+        increment_num_dir(data);
+        
+    }
+    if(signum==SIGUSR2){
+        increment_num_file(data);
+    }
+}
+
+void write_log(char* act) {
+
+    struct timeval curr_time;
+    gettimeofday(&curr_time, NULL);
+
+    int pid = getpid();
+    double time_stamp = curr_time.tv_sec * 1000 + curr_time.tv_usec * 0.001 - start_time;
+
+    char log[500];
+    sprintf(log, "%6.2f ms - %08d - %s\n", time_stamp, pid, act);
+    write(fd_log, log, strlen(log));
+}
+
+void analize_log(char* name) {
+    char buf[250];
+    sprintf(buf, "ANALIZED %s", name);
+    write_log(buf);
+}
 
 int issue_command(char* buf, size_t buf_size) {
 
-       FILE* filep = popen(buf, "r"); //READ-ONLY
+    FILE* filep = popen(buf, "r"); //READ-ONLY
 
-        if (filep == NULL)
-            return 1;
+    if (filep == NULL)
+        return 1;
 
-        fread(buf,1, buf_size,filep);
-        pclose(filep);
-        return 0;      
+    fread(buf, 1, buf_size, filep);
+    pclose(filep);
+    return 0;      
 }
 
 // TODO : change permission string to "rwx|rwx|rwx"
@@ -46,52 +83,84 @@ bool is_dir(char *path) {
     return S_ISDIR(path_stat.st_mode);
 }
 
-int get_file_info(char *name, int out_fd) {
+void file_type(char *name, char *buf) {
+    char tmp[250];
+
+    buf[0] = '\0';
+
+    sprintf(tmp, "file --brief --preserve-date --print0 --print0 %s", name);
+
+    issue_command(tmp, sizeof(tmp));
+    
+    char *ptr = strtok(tmp, ",");
+    
+    while (ptr != NULL) {
+        strcat(buf, ptr);
+        strcat(buf, " |");
+        ptr = strtok(NULL, ",");
+    }
+    
+    buf[strlen(buf) - 2] = '\0';
+}
+
+int file_info(char *name, int out_fd) {
 
     struct stat file_stat;
+    char output[500];  // string that will be written to out_fd
+    output[0] = '\0';
 
-    if (stat(name, &file_stat) == -1)       // use errno here (file doesnt exist)
+    if (stat(name, &file_stat) == -1)   // use errno here (file doesnt exist)
         return 1;
 
-    write(out_fd, name, strlen(name));
-    write(out_fd, ",", 1);
+    /* add file NAME to the output string */
+    strcat(output, name);
+    strcat(output, ",");
 
     char buf[PIPE_BUF];
 
-
     //using popen() inside issue_command
+    /*
     strcpy(buf, "file --brief --preserve-date --print0 --print0 ");
     strcat(buf, name);
     
     if (issue_command(buf, sizeof(buf))) {
         return 1;
     }
-
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
-    sprintf(buf, "%ld,", (size_t) file_stat.st_size);
-    write(out_fd, buf, strlen(buf));
-
-    get_permissions(file_stat.st_mode, buf);
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
-
-    // time of last access
-    strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_atime)));
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
+    */
+    file_type(name, buf);
+    strcat(output, buf);
+    strcat(output, ",");
     
-    // time of last modification
+    /* add file TYPE to the output string */
+    /*
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+    */
+
+    /* add file SIZE to the output string */
+    sprintf(buf, "%ld,", (size_t) file_stat.st_size);
+    strncat(output, buf, strlen(buf));
+
+    /* add file PERMISSIONS to the output string */    
+    get_permissions(file_stat.st_mode, buf);
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+
+    /* get TIME OF LAST ACCESS */
+    strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_atime)));
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+    
+    /* get TIME OF LAST MODIFICATION */
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_mtime)));
-    write(out_fd, buf, strlen(buf));
-    write(out_fd, ",", 1);
-
-    // time of last status change
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+    
+    /* get TIME OF LAST ACCESS */
     strftime(buf, sizeof(buf), "%FT%T", localtime(&(file_stat.st_ctime)));
-    write(out_fd, buf, strlen(buf));
-
+    strncat(output, buf, strlen(buf));
+    
     // CRYPTOGRAPHY 
-
     if(get_hash(data)){
 
         if(get_md5(data)){
@@ -103,10 +172,9 @@ int get_file_info(char *name, int out_fd) {
                return 1;
             }
             
-            write(out_fd, ",", 1);
+            strcat(output, ",");
             char *crypt = strtok(buf, " ");
-            write(out_fd, crypt, strlen(crypt));
-            
+            strcat(output, crypt);                      
         }
 
         if(get_sha1(data)){
@@ -117,10 +185,10 @@ int get_file_info(char *name, int out_fd) {
             if (issue_command(buf, sizeof(buf))) {
                return 1;
             }
-            
-            write(out_fd, ",", 1);
+
+            strcat(output, ",");
             char *crypt = strtok(buf, " ");
-            write(out_fd, crypt, strlen(crypt));
+            strcat(output, crypt);
         }
 
         if(get_sha256(data)){
@@ -132,31 +200,51 @@ int get_file_info(char *name, int out_fd) {
                return 1;
             }
             
-            write(out_fd, ",", 1);
+            strcat(output, ",");
             char *crypt = strtok(buf, " ");
-            write(out_fd, crypt, strlen(crypt));
+            strcat(output, crypt);
         }
     }
     
-    write(out_fd, "\n", 1);
-   
+    strcat(output, "\n");
+    
+    write(out_fd, output, strlen(output));
+    analize_log(name);
+
     return 0;
 }
 
 
+void sigint_handler_child(int signo) {
+    exit(EXIT_SUCCESS);
+}
+
 int analyse_target(char *target, int out_fd) {
 
+    //variables to count the files and directories
+    
+
     if (!is_dir(target)) {
-        get_file_info(target, out_fd);  // TODO : handle errors
+        file_info(target, out_fd);  // TODO : handle errors
+        kill(getpid(),SIGUSR2);
         return 0;
     }
+
+   
+    
 
     DIR *dir = opendir(target);
 
     if (dir == NULL)
         return 1;
 
+    
+    //if it is a directory
+    kill(getpid(),SIGUSR1);
+    printf("New directory: %d/%d directories/files at this time\n",get_num_dir(data),get_num_file(data));   
     struct dirent *ds;
+
+    int num_child = 0;
     
     while ((ds = readdir(dir)) != NULL) {     // TODO : use errno in case of error
 
@@ -171,6 +259,8 @@ int analyse_target(char *target, int out_fd) {
         strcat(path, ds->d_name);
 
         if (is_dir(path)) {
+            num_child++;
+
             if (get_recursive(data)) {
                 int child_pid = fork();
 
@@ -178,6 +268,11 @@ int analyse_target(char *target, int out_fd) {
                     return -1;
                 else if (child_pid == 0)
                 {
+                    if (signal(SIGINT, sigint_handler_child) == SIG_ERR) {
+                        fputs("an error occurred while setting a signal handler. \n", stderr);
+                        return EXIT_FAILURE;
+                    }
+
                     analyse_target(path, out_fd);
                     exit(EXIT_SUCCESS);
                 }
@@ -185,8 +280,13 @@ int analyse_target(char *target, int out_fd) {
             continue;
         }
 
-        get_file_info(path, out_fd);
+        file_info(path, out_fd);
     }
 
+    while (num_child > 0) {
+        wait(NULL);
+        num_child--;
+    }
+        
     return 0;
 }
