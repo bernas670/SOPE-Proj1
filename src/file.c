@@ -27,22 +27,27 @@ void write_log(char* act) {
     int pid = getpid();
     double time_stamp = curr_time.tv_sec * 1000 + curr_time.tv_usec * 0.001 - start_time;
 
-
     char log[500];
-    sprintf(log, "%.2f - %06d - %s\n", time_stamp, pid, act);
+    sprintf(log, "%6.2f ms - %08d - %s\n", time_stamp, pid, act);
     write(fd_log, log, strlen(log));
+}
+
+void analize_log(char* name) {
+    char buf[250];
+    sprintf(buf, "ANALIZED %s", name);
+    write_log(buf);
 }
 
 int issue_command(char* buf, size_t buf_size) {
 
-       FILE* filep = popen(buf, "r"); //READ-ONLY
+    FILE* filep = popen(buf, "r"); //READ-ONLY
 
-        if (filep == NULL)
-            return 1;
+    if (filep == NULL)
+        return 1;
 
-        fread(buf,1, buf_size,filep);
-        pclose(filep);
-        return 0;      
+    fread(buf, 1, buf_size, filep);
+    pclose(filep);
+    return 0;      
 }
 
 // TODO : change permission string to "rwx|rwx|rwx"
@@ -64,10 +69,30 @@ bool is_dir(char *path) {
     return S_ISDIR(path_stat.st_mode);
 }
 
-int get_file_info(char *name, int out_fd) {
+void file_type(char *name, char *buf) {
+    char tmp[250];
+
+    buf[0] = '\0';
+
+    sprintf(tmp, "file --brief --preserve-date --print0 --print0 %s", name);
+
+    issue_command(tmp, sizeof(tmp));
+    
+    char *ptr = strtok(tmp, ",");
+    
+    while (ptr != NULL) {
+        strcat(buf, ptr);
+        strcat(buf, " |");
+        ptr = strtok(NULL, ",");
+    }
+    
+    buf[strlen(buf) - 2] = '\0';
+}
+
+int file_info(char *name, int out_fd) {
 
     struct stat file_stat;
-    char output[PIPE_BUF];  // string that will be written to out_fd
+    char output[500];  // string that will be written to out_fd
     output[0] = '\0';
 
     if (stat(name, &file_stat) == -1)   // use errno here (file doesnt exist)
@@ -80,17 +105,24 @@ int get_file_info(char *name, int out_fd) {
     char buf[PIPE_BUF];
 
     //using popen() inside issue_command
+    /*
     strcpy(buf, "file --brief --preserve-date --print0 --print0 ");
     strcat(buf, name);
     
     if (issue_command(buf, sizeof(buf))) {
         return 1;
     }
-
-    /* add file TYPE to the output string */
-    strncat(output, buf, strlen(buf));
+    */
+    file_type(name, buf);
+    strcat(output, buf);
     strcat(output, ",");
     
+    /* add file TYPE to the output string */
+    /*
+    strncat(output, buf, strlen(buf));
+    strcat(output, ",");
+    */
+
     /* add file SIZE to the output string */
     sprintf(buf, "%ld,", (size_t) file_stat.st_size);
     strncat(output, buf, strlen(buf));
@@ -163,9 +195,7 @@ int get_file_info(char *name, int out_fd) {
     strcat(output, "\n");
     
     write(out_fd, output, strlen(output));
-    printf("%s\n", name);
-    sprintf(buf, "ANALIZED %s", name);
-    write_log(buf);
+    analize_log(name);
 
     return 0;
 }
@@ -178,11 +208,9 @@ void sigint_handler_child(int signo) {
 int analyse_target(char *target, int out_fd) {
 
     if (!is_dir(target)) {
-        get_file_info(target, out_fd);  // TODO : handle errors
+        file_info(target, out_fd);  // TODO : handle errors
         return 0;
     }
-
-
 
     DIR *dir = opendir(target);
 
@@ -227,7 +255,7 @@ int analyse_target(char *target, int out_fd) {
             continue;
         }
 
-        get_file_info(path, out_fd);
+        file_info(path, out_fd);
     }
 
     while (num_child > 0) {

@@ -23,7 +23,7 @@ void sigint_handler(int signo) {
     exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char* argv[], char* envp[]) {
+int main(int argc, char* argv[]) {
 
     struct timeval start_time_struct;
     if (gettimeofday(&start_time_struct, NULL) == -1)  // TODO: use errno
