@@ -69,10 +69,15 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (get_log(data) && get_logfile(data) != NULL) {
-        fd_log = open(get_logfile(data), O_WRONLY | O_APPEND | O_CREAT, MODE);
+    if (get_log(data)) {
+        if (get_logfile(data) != NULL)
+            fd_log = open(get_logfile(data), O_WRONLY | O_APPEND | O_CREAT, MODE);
+        else {
+            printf("LOGFILENAME environment variable is not set!\n");
+            delete_forensic(data);
+            return 1;
+        }
     }
-
 
     int fd_out = STDOUT_FILENO;
 

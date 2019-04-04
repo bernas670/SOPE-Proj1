@@ -37,6 +37,9 @@ void sig_usr(int signo){
 
 void write_log(char* act) {
 
+    if (!get_log(data))
+        return;
+
     struct timeval curr_time;
     gettimeofday(&curr_time, NULL);
 
