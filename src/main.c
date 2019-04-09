@@ -29,7 +29,7 @@ void sigint_handler(int signo) {
 int main(int argc, char* argv[]) {
 
     /*
-        installing handler to  SIGUSR1
+        installing handler to  SIGUSR1 & SIGUSR2
     */
 
    struct sigaction newAction;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
    }
 
     if(sigaction(SIGUSR2,&newAction,NULL)<0){
-       printf("Error installling SIGUSR1 handler\n");
+       printf("Error installling SIGUSR2 handler\n");
        exit(1);
     }
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
         return 1;
 
     if (get_arguments(argc, argv, data)) {
-        delete_forensic(data);
+        delete_forensic(data); 
         return 1;
     }
 
@@ -82,6 +82,7 @@ int main(int argc, char* argv[]) {
     int fd_out = STDOUT_FILENO;
 
     // TODO : check if file already exists
+    //if not delete data
     if (get_output(data)) {
         fd_out = open(get_outfile(data), O_WRONLY | O_CREAT, MODE);
     }
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
     printf("New directory: %d/%d directories/files at this time\n",get_num_dir(data),get_num_file(data));
 
     close(fd_out);          // TODO: use errno
-    close(fd_log);
+    close(fd_log);          
     delete_forensic(data);
 
     return 0;
