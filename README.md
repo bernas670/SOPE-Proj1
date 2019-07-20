@@ -14,15 +14,3 @@ Forensic analysis utility for directories and files in Unix / Linux environment.
 * `-h` : calculate one or more cryptographic hash of the analysed files (*if more than one argument is wanted separate them with commas*)
 * `-o` : store the analysis data in a CSV file (*not in the standard output*)
 * `-v` : generate a log file
-
-
-## Development Plan
-- [x] Receive, handle and save arguments and environment variables.
-- [x] Extract the solicited information from just one file and print it to the standard output according to the parsed arguments.
-	- [x] Same procedure but now, implementing the option **`-o`** (writing in the specified file).
-- [x] Repeat the previous step for all files in a directory.
-- [x] When a directory is found, create a child process capable of repeating its father's functions, performing a similar job to the previous step.
-- [x] Implement recursive analysis of a directory tree.
-- [x] Add logging funtionalities.
-- [x] Handle the signal associated to CTRL+C.
-- [x] Implement issuing and handling of the signals SIGUSR1 and SIGUSR2.
